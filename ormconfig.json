@@ -5,7 +5,11 @@
   "username": "postgres",
   "password": "postgres",
   "database": "ideas",
+  "entities": ["dist/database/**/*.entity.js"],
   "synchronize": true,
   "logging": true,
-  "entities": ["./src/**/*.entity.ts", "./dist/**/*.entity.js"]
+  "migrations": ["dist/database/migrations/*.js"],
+  "cli": {
+    "migrationsDir": "src/database/migrations"
+  }
 }

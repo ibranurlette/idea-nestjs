@@ -1,4 +1,39 @@
 import { Injectable } from '@nestjs/common';
+import { Repository } from 'typeorm';
+import { InjectRepository } from '@nestjs/typeorm';
+
+import { IdeaIntity } from './idea.entity';
+import { IdeaDTO } from './idea.dto';
 
 @Injectable()
-export class IdeaService {}
+export class IdeaService {
+  constructor(
+    @InjectRepository(IdeaIntity)
+    private ideaRepository: Repository<IdeaIntity>,
+  ) {}
+
+  async showAll() {
+    return await this.ideaRepository.find();
+  }
+
+  async create(data: IdeaDTO) {
+    const idea = await this.ideaRepository.create(data);
+    await this.ideaRepository.save(idea);
+    return idea;
+  }
+
+  async read(id: string) {
+    return await this.ideaRepository.findOne({ where: { id } });
+  }
+
+  async update(id: string, data: Partial<IdeaDTO>) {
+    await this.ideaRepository.update({ id }, data);
+    return await this.ideaRepository.findOne({ id });
+  }
+
+  async destroy(id: string) {
+    await this.ideaRepository.delete({ id });
+    const respons = await this.ideaRepository.find();
+    return { respons, deleted: 'deleted data succesfully' };
+  }
+}

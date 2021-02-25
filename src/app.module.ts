@@ -7,9 +7,10 @@ import { AppService } from './app.service';
 import { IdeaModule } from './database/entities/umum/idea.module';
 import { HttpErrorFilter } from './shared/http-error-filter';
 import { LoggingInterceptor } from './shared/logging.interceptor';
+import { UserModule } from './database/entities/users/user.module';
 
 @Module({
-  imports: [TypeOrmModule.forRoot(), IdeaModule],
+  imports: [TypeOrmModule.forRoot(), IdeaModule, UserModule],
   controllers: [AppController],
   providers: [
     AppService,

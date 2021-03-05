@@ -38,7 +38,7 @@ export class IdeaController {
   @UseGuards(new AuthGuard())
   @UsePipes(new ValidationPipe())
   createIdea(@User('id') user, @Body() data: IdeaDTO) {
-    this.logData({ data, user });
+    this.logData({ user, data });
     return this.IdeaService.create(user, data);
   }
 
@@ -48,14 +48,20 @@ export class IdeaController {
   }
 
   @Put(':id')
+  @UseGuards(new AuthGuard())
   @UsePipes(new ValidationPipe())
-  updateIdea(@Param('id') id: string, @Body() data: Partial<IdeaDTO>) {
-    this.logger.log(JSON.stringify(data));
-    return this.IdeaService.update(id, data);
+  updateIdea(
+    @User('id') user: string,
+    @Param('id') id: string,
+    @Body() data: Partial<IdeaDTO>,
+  ) {
+    this.logData({ user, id, data });
+    return this.IdeaService.update(user, id, data);
   }
 
   @Delete(':id')
-  destroyIdea(@Param('id') id: string) {
-    return this.IdeaService.destroy(id);
+  @UseGuards(new AuthGuard())
+  destroyIdea(@User('id') user: string, @Param('id') id: string) {
+    return this.IdeaService.destroy(user, id);
   }
 }

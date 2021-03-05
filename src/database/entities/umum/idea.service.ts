@@ -3,7 +3,7 @@ import { Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
 
 import { IdeaIntity } from './idea.entity';
-import { IdeaDTO } from './idea.dto';
+import { IdeaDTO, IdeaRO } from './idea.dto';
 import { UserEntity } from '../users/user.entity';
 
 @Injectable()
@@ -16,33 +16,42 @@ export class IdeaService {
     private userRepository: Repository<UserEntity>,
   ) {}
 
-  async showAll() {
-    return await this.ideaRepository.find({ relations: ['author'] });
-  }
-
-  async create(userId: string, data: IdeaDTO) {
-    const user = await this.userRepository.findOne({ where: { id: userId } });
-    const idea = await this.ideaRepository.create({ ...data, author: user });
-    await this.ideaRepository.save(idea);
+  private toResponseObject(idea: IdeaIntity): IdeaRO {
     return { ...idea, author: idea.author.toResponseObject(false) };
   }
 
-  async read(id: string) {
-    const idea = await this.ideaRepository.findOne({ where: { id } });
+  async showAll(): Promise<IdeaRO[]> {
+    const ideas = await this.ideaRepository.find({ relations: ['author'] });
+    return ideas.map((idea) => this.toResponseObject(idea));
+  }
+
+  async create(userId: string, data: IdeaDTO): Promise<IdeaRO> {
+    const user = await this.userRepository.findOne({ where: { id: userId } });
+    const idea = await this.ideaRepository.create({ ...data, author: user });
+    await this.ideaRepository.save(idea);
+    return this.toResponseObject(idea);
+  }
+
+  async read(id: string): Promise<IdeaRO> {
+    const idea = await this.ideaRepository.findOne({
+      where: { id },
+      relations: ['author'],
+    });
     if (!idea) {
       throw new HttpException('Not Found', HttpStatus.NOT_FOUND);
     }
 
-    return idea;
+    return this.toResponseObject(idea);
   }
 
-  async update(id: string, data: Partial<IdeaDTO>) {
+  async update(id: string, data: Partial<IdeaDTO>): Promise<IdeaRO> {
     const idea = await this.ideaRepository.findOne({ where: { id } });
     if (!idea) {
       throw new HttpException('Not Found', HttpStatus.NOT_FOUND);
     }
     await this.ideaRepository.update({ id }, data);
-    return await this.ideaRepository.findOne({ id });
+    await this.ideaRepository.findOne({ id });
+    return this.toResponseObject(idea);
   }
 
   async destroy(id: string) {

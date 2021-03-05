@@ -1,4 +1,6 @@
-import { createParamDecorator } from '@nestjs/common';
-export const User = createParamDecorator((data, req) => {
-  return data ? req.user[data] : req.user;
+import { createParamDecorator, ExecutionContext } from '@nestjs/common';
+
+export const User = createParamDecorator((data, ctx: ExecutionContext) => {
+  const request = ctx.switchToHttp().getRequest();
+  return request.users[data];
 });

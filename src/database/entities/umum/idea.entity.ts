@@ -3,7 +3,10 @@ import {
   PrimaryGeneratedColumn,
   Column,
   CreateDateColumn,
+  ManyToOne,
+  UpdateDateColumn,
 } from 'typeorm';
+import { UserEntity } from '../users/user.entity';
 
 @Entity({ schema: 'umum', name: 'idea' })
 export class IdeaIntity {
@@ -13,9 +16,15 @@ export class IdeaIntity {
   @CreateDateColumn()
   created: Date;
 
+  @UpdateDateColumn()
+  updated: Date;
+
   @Column('text')
   idea: string;
 
   @Column('text')
   description: string;
+
+  @ManyToOne((type) => UserEntity, (author: UserEntity) => author.ideas)
+  author: UserEntity;
 }
